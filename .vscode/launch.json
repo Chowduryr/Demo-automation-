@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ── Run all tests (headed) ─────────────────────────────────────
+    {
+      "name": "▶️ Run All Tests (headed)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "--headed"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": { "PWDEBUG": "0" }
+    },
+
+    // ── Debug current test file ────────────────────────────────────
+    {
+      "name": "🐛 Debug Current Test File",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "${relativeFile}", "--headed", "--debug"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": { "PWDEBUG": "1" }
+    },
+
+    // ── Run UI tests only ──────────────────────────────────────────
+    {
+      "name": "🖥️ Run UI Tests (Chromium)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "tests/ui/", "--project=chromium", "--headed"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+
+    // ── Run API tests only ─────────────────────────────────────────
+    {
+      "name": "🔌 Run API Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "tests/api/", "--project=api"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+
+    // ── Open Playwright UI mode ────────────────────────────────────
+    {
+      "name": "🎭 Playwright UI Mode",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "--ui"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

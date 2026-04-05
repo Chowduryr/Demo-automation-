@@ -1,0 +1,207 @@
+name: 🎭 Playwright Tests
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run tests on'
+        required: false
+        default: 'all'
+        type: choice
+        options: [all, chromium, firefox, webkit]
+
+# Cancel in-progress runs on the same branch when a new push arrives
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 1: Install deps + run all Playwright tests
+  # ─────────────────────────────────────────────────────────────────
+  test:
+    name: 🧪 Run Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false       # Keep running other browsers if one fails
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      # ── 1. Checkout code ─────────────────────────────────────────
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Node.js ─────────────────────────────────────────
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Install dependencies ──────────────────────────────────
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      # ── 4. Install Playwright browsers ───────────────────────────
+      - name: 🎭 Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      # ── 5. Run Playwright tests ───────────────────────────────────
+      - name: ▶️ Run Playwright tests (${{ matrix.browser }})
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          CI: true
+          BASE_URL: https://demo.playwright.dev/todomvc
+
+      # ── 6. Upload Allure results ──────────────────────────────────
+      - name: 📊 Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()    # Upload even if tests fail
+        with:
+          name: allure-results-${{ matrix.browser }}
+          path: allure-results/
+          retention-days: 7
+
+      # ── 7. Upload Playwright HTML report ─────────────────────────
+      - name: 🗂️ Upload Playwright HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 7
+
+      # ── 8. Upload test results (traces, screenshots, videos) ─────
+      - name: 🎥 Upload test results (traces & screenshots)
+        uses: actions/upload-artifact@v4
+        if: failure()   # Only upload on failure
+        with:
+          name: test-results-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 3
+
+      # ── 9. Publish JUnit test summary to GitHub UI ───────────────
+      - name: 📋 Publish test summary
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results — ${{ matrix.browser }}
+          path: reports/junit-results.xml
+          reporter: java-junit
+          fail-on-error: false
+
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 2: API Tests (runs independently, no browser needed)
+  # ─────────────────────────────────────────────────────────────────
+  api-tests:
+    name: 🔌 API Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright (API project needs no browsers)
+        run: npx playwright install chromium
+
+      - name: ▶️ Run API tests
+        run: npx playwright test --project=api
+        env:
+          CI: true
+
+      - name: 📊 Upload API test Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-api
+          path: allure-results/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 3: Merge all Allure results and generate final report
+  # Runs after all test jobs complete
+  # ─────────────────────────────────────────────────────────────────
+  allure-report:
+    name: 📈 Generate Allure Report
+    runs-on: ubuntu-latest
+    needs: [test, api-tests]
+    if: always()    # Always run, even if tests failed
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      # Download all allure-results artifacts from previous jobs
+      - name: 📥 Download Allure results (chromium)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-chromium
+          path: allure-results/
+        continue-on-error: true
+
+      - name: 📥 Download Allure results (firefox)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-firefox
+          path: allure-results/
+        continue-on-error: true
+
+      - name: 📥 Download Allure results (webkit)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-webkit
+          path: allure-results/
+        continue-on-error: true
+
+      - name: 📥 Download Allure results (api)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-api
+          path: allure-results/
+        continue-on-error: true
+
+      # Generate the merged Allure HTML report
+      - name: 📊 Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: allure-results
+          allure_report:  allure-report
+          allure_history: allure-history
+          keep_reports:   20
+
+      # Publish the Allure report to GitHub Pages
+      - name: 🚀 Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir:    allure-report
+
+      # Also upload as artifact for direct download
+      - name: 📁 Upload merged Allure report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-report-final
+          path: allure-report/
+          retention-days: 14

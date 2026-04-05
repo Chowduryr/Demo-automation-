@@ -1,0 +1,64 @@
+{
+  // ─── Playwright Test Explorer ──────────────────────────────────────
+  "playwright.reuseBrowser":          false,
+  "playwright.showTrace":             true,
+
+  // ─── Editor ───────────────────────────────────────────────────────
+  "editor.formatOnSave":              true,
+  "editor.defaultFormatter":          "esbenp.prettier-vscode",
+  "editor.tabSize":                   2,
+  "editor.rulers":                    [100],
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs":       "active",
+  "editor.stickyScroll.enabled":      true,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+
+  // ─── JavaScript ───────────────────────────────────────────────────
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.suggest.autoImports":   true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // ─── ESLint ───────────────────────────────────────────────────────
+  "eslint.validate":                  ["javascript"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint":           "explicit"
+  },
+
+  // ─── Files ────────────────────────────────────────────────────────
+  "files.exclude": {
+    "node_modules":                   true,
+    "test-results":                   true,
+    "playwright-report":              true,
+    "allure-results":                 true,
+    "allure-report":                  true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**":             true,
+    "**/test-results/**":             true,
+    "**/allure-results/**":           true
+  },
+  "files.eol":                        "\n",
+  "files.insertFinalNewline":         true,
+  "files.trimTrailingWhitespace":     true,
+
+  // ─── Search ───────────────────────────────────────────────────────
+  "search.exclude": {
+    "node_modules":                   true,
+    "allure-results":                 true,
+    "allure-report":                  true,
+    "playwright-report":              true,
+    "test-results":                   true
+  },
+
+  // ─── Terminal ─────────────────────────────────────────────────────
+  "terminal.integrated.defaultProfile.osx":     "zsh",
+  "terminal.integrated.defaultProfile.linux":   "bash",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+  // ─── Git ──────────────────────────────────────────────────────────
+  "git.autofetch":                    true,
+  "git.confirmSync":                  false,
+  "gitlens.currentLine.enabled":      true
+}

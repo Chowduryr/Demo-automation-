@@ -1,0 +1,23 @@
+{
+  // VS Code will prompt you to install these when you open the project.
+  // Click "Install All" in the notification that appears.
+  "recommendations": [
+    // ── Playwright ──────────────────────────────────────────────────
+    "ms-playwright.playwright",          // Run & debug tests from the Testing panel
+
+    // ── JavaScript / Node ───────────────────────────────────────────
+    "dbaeumer.vscode-eslint",            // Lint JS files on save
+    "esbenp.prettier-vscode",            // Auto-format on save
+    "christian-kohler.path-intellisense",// Auto-complete file paths
+
+    // ── Git ─────────────────────────────────────────────────────────
+    "eamodio.gitlens",                   // Inline blame, history, branch comparison
+    "mhutchie.git-graph",               // Visual git branch graph
+
+    // ── Quality of life ─────────────────────────────────────────────
+    "streetsidesoftware.code-spell-checker", // Catch typos in test descriptions
+    "pkief.material-icon-theme",         // Better file icons
+    "oderwat.indent-rainbow",            // Coloured indentation guides
+    "wayou.vscode-todo-highlight"        // Highlights TODO / FIXME in comments
+  ]
+}

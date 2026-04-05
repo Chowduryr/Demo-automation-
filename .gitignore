@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Playwright output
+test-results/
+playwright-report/
+reports/
+blob-report/
+playwright/.cache/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+# .vscode/ is intentionally committed so all team members share the same
+# Playwright extensions, settings, and debug configurations.
+# Only ignore personal/local overrides.
+.vscode/*.code-snippets
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
